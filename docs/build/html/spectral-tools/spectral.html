@@ -1,0 +1,972 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>spectral package &mdash; spectral-tools 1.0a documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="spectral-tools 1.0a documentation" href="index.html" />
+    <link rel="up" title="spectral" href="modules.html" />
+    <link rel="next" title="spectral.tests package" href="spectral.tests.html" />
+    <link rel="prev" title="spectral" href="modules.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="spectral-package">
+<h1>spectral package<a class="headerlink" href="#spectral-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="spectral.tests.html">spectral.tests package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="spectral.tests.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spectral.tests.html#module-spectral.tests.blackbody_tests">spectral.tests.blackbody_tests module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spectral.tests.html#module-spectral.tests.constructor_tests">spectral.tests.constructor_tests module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spectral.tests.html#module-spectral.tests.filter_tests">spectral.tests.filter_tests module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spectral.tests.html#module-spectral.tests.interpolation_tests">spectral.tests.interpolation_tests module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spectral.tests.html#module-spectral.tests.spectrum_tests">spectral.tests.spectrum_tests module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spectral.tests.html#module-spectral.tests.wavelength_to_rgb_tests">spectral.tests.wavelength_to_rgb_tests module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spectral.tests.html#module-spectral.tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="module-spectral">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-spectral" title="Permalink to this headline">¶</a></h2>
+<p>This package provides a set of functions to manipulate with spectral data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Authors:</th><td class="field-body">Violet Red</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Version:</th><td class="field-body">1.0 2016/07/11</td>
+</tr>
+</tbody>
+</table>
+<p>This module currently provides different spectral tools for space spectra
+construction and manipulation. See <cite>spectral.examples</cite> subpackage for a set of
+example programs (some of them depend on <cite>matplotlib</cite>).</p>
+<p><strong>Examples:</strong></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># non-atmospheric solar energetic spectrum approximation</span>
+<span class="kn">from</span> <span class="nn">spectral.blackbody</span> <span class="k">import</span> <span class="n">BlackbodySpectrumConstructor</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">BlackbodySpectrumConstructor</span><span class="p">(</span><span class="mi">5777</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">x_values</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">intensities</span><span class="p">),</span> <span class="s1">&#39;g&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Basic description:</strong></p>
+<p>The useful functions are contained in <a class="reference internal" href="#module-spectral.blackbody" title="spectral.blackbody"><code class="xref py py-mod docutils literal"><span class="pre">spectral.blackbody</span></code></a> and
+<a class="reference internal" href="#module-spectral.color_tools" title="spectral.color_tools"><code class="xref py py-mod docutils literal"><span class="pre">spectral.color_tools</span></code></a>. Other modules provide tools and base
+classes for different purposes. This package uses a small set of tools based
+in <cite>tools</cite> folder. It is not a part of the current package.</p>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-spectral.blackbody">
+<span id="spectral-blackbody-module"></span><h2>spectral.blackbody module<a class="headerlink" href="#module-spectral.blackbody" title="Permalink to this headline">¶</a></h2>
+<p>This module provides classes for electromagnetic spectrum manipulations.</p>
+<dl class="class">
+<dt id="spectral.blackbody.BlackbodySpectrumConstructor">
+<em class="property">class </em><code class="descclassname">spectral.blackbody.</code><code class="descname">BlackbodySpectrumConstructor</code><a class="reference internal" href="_modules/spectral/blackbody.html#BlackbodySpectrumConstructor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.blackbody.BlackbodySpectrumConstructor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spectral.blackbody.ElectromagneticSpectrumConstructor" title="spectral.blackbody.ElectromagneticSpectrumConstructor"><code class="xref py py-class docutils literal"><span class="pre">spectral.blackbody.ElectromagneticSpectrumConstructor</span></code></a></p>
+<p>This class provides simple black body spectrum construction.</p>
+<p>The constructor accepts temperature value, because black body spectrum
+depends only on its temperature (google Planck distribution).</p>
+<p>It can be used for good approximations of normal star radiation spectra
+(see figures).</p>
+<p>Spectral boundaries will be defined automatically. You may modify the
+range manually by setting all checks mentioned above to <em>False</em> and by
+<a class="reference internal" href="#spectral.constructor.SpectrumConstructor.set_spectral_range" title="spectral.constructor.SpectrumConstructor.set_spectral_range"><code class="xref py py-meth docutils literal"><span class="pre">constructor.SpectrumConstructor.set_spectral_range()</span></code></a> or
+<a class="reference internal" href="#spectral.blackbody.ElectromagneticSpectrumConstructor.set_spectral_range_by_bands" title="spectral.blackbody.ElectromagneticSpectrumConstructor.set_spectral_range_by_bands"><code class="xref py py-meth docutils literal"><span class="pre">ElectromagneticSpectrumConstructor.set_spectral_range_by_bands()</span></code></a>
+but it&#8217;s not recommended.</p>
+<p>The class uses progressive scale
+(see <a href="#id1"><span class="problematic" id="id2">:py:attribute:`.constructor.SpectrumConstructor.progressive_scale`</span></a>)
+with tick size
+related to wavelength. At lower wavelengths ticks will be more frequent.
+Set better precision with
+<a class="reference internal" href="#spectral.constructor.SpectrumConstructor.set_precision" title="spectral.constructor.SpectrumConstructor.set_precision"><code class="xref py py-meth docutils literal"><span class="pre">constructor.SpectrumConstructor.set_precision()</span></code></a>
+method if you are concerned about it. Default precision is 200 points.</p>
+<p>The constructor will try to define maximum of the spectrum using
+Wien&#8217;s law (again, google it) and locate 99.9% of the total flux inside
+constructed data. <a href="#id3"><span class="problematic" id="id4">:py:attribute:`spectrum_gate`</span></a> contains boundary values
+relative to a spectral maximum wavelength.</p>
+<p>If <a class="reference internal" href="#spectral.blackbody.BlackbodySpectrumConstructor.ignore_visual" title="spectral.blackbody.BlackbodySpectrumConstructor.ignore_visual"><code class="xref py py-attr docutils literal"><span class="pre">ignore_visual</span></code></a> is not set (as by default), then the
+constructor tries to predict when visual range is needed by comparing
+provided temperature with <a class="reference internal" href="#spectral.blackbody.BlackbodySpectrumConstructor.visual_t_gate" title="spectral.blackbody.BlackbodySpectrumConstructor.visual_t_gate"><code class="xref py py-attr docutils literal"><span class="pre">visual_t_gate</span></code></a> boundaries.
+By default, these values are set to represent the range from a transition
+between L and T brown dwarfs to a hot Wolf-Rayet star surface temperature.
+Typical objects, exceeding this limit may be neutron stars or ultra-cold
+brown dwarfs and rogue planets. There is no need to include them, because
+their visible luminosity would be negligible.
+If the constructor proceeds, it looks at <a class="reference internal" href="#spectral.blackbody.BlackbodySpectrumConstructor.visible_range" title="spectral.blackbody.BlackbodySpectrumConstructor.visible_range"><code class="xref py py-attr docutils literal"><span class="pre">visible_range</span></code></a>.
+By default, they also include Near-IR and Near-UV bands.</p>
+<div class="figure" id="id5">
+<img alt="../img/spectral/EffectiveTemperature_300dpi_e.png:target:../img/spectral/EffectiveTemperature_300dpi_e.png:align:center:width:10em" src="../img/spectral/EffectiveTemperature_300dpi_e.png:target:../img/spectral/EffectiveTemperature_300dpi_e.png:align:center:width:10em" />
+<p class="caption"><span class="caption-text">Actual solar extraterrestrial spectrum vs black body spectrum.</span></p>
+</div>
+<div class="figure" id="id6">
+<img alt="../img/spectral/spectra-compared.gif:target:../img/spectral/spectra-compared.gif:align:center:width:10em" src="../img/spectral/spectra-compared.gif:target:../img/spectral/spectra-compared.gif:align:center:width:10em" />
+<p class="caption"><span class="caption-text">Example of how stellar spectrum changes with temperature.</span></p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>temperature</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; black body surface temperature in kelvins</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">electromagnetic spectrum of a black body with given temperature</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#spectral.blackbody.ElectromagneticSpectrum" title="spectral.blackbody.ElectromagneticSpectrum">ElectromagneticSpectrum</a></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>ValueError</strong> &#8211; if provided temperature &lt;= 1</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="spectral.blackbody.BlackbodySpectrumConstructor.ignore_visual">
+<code class="descname">ignore_visual</code><em class="property"> = False</em><a class="headerlink" href="#spectral.blackbody.BlackbodySpectrumConstructor.ignore_visual" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="spectral.blackbody.BlackbodySpectrumConstructor.progressive_scale">
+<code class="descname">progressive_scale</code><em class="property"> = True</em><a class="headerlink" href="#spectral.blackbody.BlackbodySpectrumConstructor.progressive_scale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="spectral.blackbody.BlackbodySpectrumConstructor.spectrum_gate">
+<code class="descname">spectrum_gate</code><em class="property"> = (0.156, 7.8)</em><a class="headerlink" href="#spectral.blackbody.BlackbodySpectrumConstructor.spectrum_gate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="spectral.blackbody.BlackbodySpectrumConstructor.visible_range">
+<code class="descname">visible_range</code><em class="property"> = (3.0000000000000004e-07, 1.4000000000000001e-06)</em><a class="headerlink" href="#spectral.blackbody.BlackbodySpectrumConstructor.visible_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="spectral.blackbody.BlackbodySpectrumConstructor.visual_t_gate">
+<code class="descname">visual_t_gate</code><em class="property"> = (1199.0, 250000.0)</em><a class="headerlink" href="#spectral.blackbody.BlackbodySpectrumConstructor.visual_t_gate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="spectral.blackbody.ElectromagneticSpectrum">
+<em class="property">class </em><code class="descclassname">spectral.blackbody.</code><code class="descname">ElectromagneticSpectrum</code><span class="sig-paren">(</span><em>lines</em>, <em>interpolation='point'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spectral/blackbody.html#ElectromagneticSpectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.blackbody.ElectromagneticSpectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spectral.spectrum.Spectrum" title="spectral.spectrum.Spectrum"><code class="xref py py-class docutils literal"><span class="pre">spectral.spectrum.Spectrum</span></code></a></p>
+<p>The main reason for this type is to provide type matching between
+electromagnetic spectra and forbid arithmetic operations between different
+types of spectra.</p>
+<dl class="attribute">
+<dt id="spectral.blackbody.ElectromagneticSpectrum.bands">
+<code class="descname">bands</code><a class="headerlink" href="#spectral.blackbody.ElectromagneticSpectrum.bands" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Data set on bands of electromagnetic spectra. Includes all ranges from
+gamma-rays to radio-waves.</p>
+<dl class="attribute">
+<dt>
+<code class="descname">bands</code><em class="property"> = {'MUV': (2.0000000000000002e-07, 3.0000000000000004e-07), 'NUV': (3.0000000000000004e-07, 3.8e-07), 'FIR': (1.5e-05, 0.0001), 'MF': (100, 1000.0), 'MIR': (3e-06, 8.000000000000001e-06), 'NIR': (7.5e-07, 1.4000000000000001e-06), 'SLF': (1000000.0, 10000000.0), 'LF': (1000.0, 10000.0), 'SHF': (0.01, 0.1), 'THF': (0.0001, 0.001), 'HF': (10, 100), 'LIR': (8.000000000000001e-06, 1.5e-05), 'VIS': (3.8e-07, 7.5e-07), 'VHF': (1, 10), 'EUV': (1e-08, 1.0000000000000001e-07), 'HX': (1.0000000000000001e-11, 1.0000000000000002e-10), 'VLF': (10000.0, 100000.0), 'ULF': (100000.0, 1000000.0), 'GAMMA': (0.0, 1.0000000000000001e-11), 'SX': (1.0000000000000002e-10, 1e-08), 'ELF': (10000000.0, 100000000.0), 'UHF': (0.1, 1), 'FUV': (1.0000000000000001e-07, 2.0000000000000002e-07), 'SIR': (1.4000000000000001e-06, 3e-06), 'EHF': (0.001, 0.01)}</em></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spectral.blackbody.ElectromagneticSpectrum.get_intensity_in_band">
+<code class="descname">get_intensity_in_band</code><span class="sig-paren">(</span><em>band_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spectral/blackbody.html#ElectromagneticSpectrum.get_intensity_in_band"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.blackbody.ElectromagneticSpectrum.get_intensity_in_band" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns intensity for a given band range.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>band_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; spectral band identifier, see
+<a class="reference internal" href="#spectral.blackbody.ElectromagneticSpectrum.bands" title="spectral.blackbody.ElectromagneticSpectrum.bands"><code class="xref py py-func docutils literal"><span class="pre">ElectromagneticSpectrum.bands()</span></code></a></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">absolute value of flux density on a surface for a given band</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="spectral.blackbody.ElectromagneticSpectrum.relative_visual_intensity">
+<code class="descname">relative_visual_intensity</code><a class="headerlink" href="#spectral.blackbody.ElectromagneticSpectrum.relative_visual_intensity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns intensity in a visual range compared to overall intensity.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">relative visual intensity value 0..1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="spectral.blackbody.ElectromagneticSpectrumConstructor">
+<em class="property">class </em><code class="descclassname">spectral.blackbody.</code><code class="descname">ElectromagneticSpectrumConstructor</code><a class="reference internal" href="_modules/spectral/blackbody.html#ElectromagneticSpectrumConstructor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.blackbody.ElectromagneticSpectrumConstructor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spectral.constructor.SpectrumConstructor" title="spectral.constructor.SpectrumConstructor"><code class="xref py py-class docutils literal"><span class="pre">spectral.constructor.SpectrumConstructor</span></code></a></p>
+<p>An abstract class for electromagnetic spectrum constructors.</p>
+<dl class="classmethod">
+<dt id="spectral.blackbody.ElectromagneticSpectrumConstructor.set_spectral_range_by_bands">
+<em class="property">classmethod </em><code class="descname">set_spectral_range_by_bands</code><span class="sig-paren">(</span><em>band1</em>, <em>band2=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spectral/blackbody.html#ElectromagneticSpectrumConstructor.set_spectral_range_by_bands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.blackbody.ElectromagneticSpectrumConstructor.set_spectral_range_by_bands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets spectral range of the constructor. All constructed spectra will
+have this spectral range.</p>
+<p>You may provide band names listed in
+<a class="reference internal" href="#spectral.blackbody.ElectromagneticSpectrum.bands" title="spectral.blackbody.ElectromagneticSpectrum.bands"><code class="xref py py-attr docutils literal"><span class="pre">spectral.blackbody.ElectromagneticSpectrum.bands</span></code></a> to define
+the spectral range. Note, that some derived constructor classes may
+override this value or even ignore it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>band1</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; minimal value</li>
+<li><strong>band2</strong> (<em>str, None</em>) &#8211; maximum value, if None, then the full range of band1 will
+be taken</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> &#8211; if any band is not present in
+<code class="xref py py-mod docutils literal"><span class="pre">constants.constants</span></code> or when band1 wavelength &gt;
+band2 wavelength</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="spectral.blackbody.PhotoAbsoprtion">
+<em class="property">class </em><code class="descclassname">spectral.blackbody.</code><code class="descname">PhotoAbsoprtion</code><a class="reference internal" href="_modules/spectral/blackbody.html#PhotoAbsoprtion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.blackbody.PhotoAbsoprtion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spectral.filter.SpectrumFilter" title="spectral.filter.SpectrumFilter"><code class="xref py py-class docutils literal"><span class="pre">spectral.filter.SpectrumFilter</span></code></a></p>
+<p>This class provides photoelectric absorption filters.
+It may be useful for atmospheric filtering in case of really hard spectra
+of blue stars where significant amounts of x-ray radiation are present.
+Probably most of the rays with lambda &gt; 10nm won&#8217;t pierce through any
+common atmosphere at all.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Photoelectric absorption slightly depends on temperature, so
+a minimal required energy (i.e. maximum wavelength) will be
+shifted in a hot medium.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>spectrum</strong> (<a class="reference internal" href="#spectral.blackbody.ElectromagneticSpectrum" title="spectral.blackbody.ElectromagneticSpectrum"><em>ElectromagneticSpectrum</em></a>) &#8211; spectrum to be filtered</li>
+<li><strong>mat_abundances</strong> (<em>tuple, list of (Material, float)</em>) &#8211; <p>normalized list of material relative abundances
+in given medium (atmosphere, ocean, etc.).
+Abundances should be provided as a list of pairs:
+(Material, relative_molecule_abundance). Note, that
+often some sources give mass abundances: in this
+case you should manually convert them using known
+molar weights.
+Material instance or class should probide given
+attributes and methods:</p>
+<blockquote>
+<div><blockquote>
+<div><ul>
+<li>photoeffect_cross_section(wavelength,</li>
+</ul>
+<p>temperature) in m3, usually &lt; 10**-30</p>
+</div></blockquote>
+<p>See <a class="reference internal" href="#module-spectral.mock_material" title="spectral.mock_material"><code class="xref py py-mod docutils literal"><span class="pre">spectral.mock_material</span></code></a> for more info.</p>
+</div></blockquote>
+</li>
+<li><strong>molecules</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; absolute number of molecules on a light&#8217;s path</li>
+<li><strong>temperature</strong> &#8211; should be &gt; 1K. It&#8217;s probably better to take an
+average temperature of the dense atmosphere layer or
+to create different filters for different atmospheric
+layers.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">filtered spectrum</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#spectral.blackbody.ElectromagneticSpectrum" title="spectral.blackbody.ElectromagneticSpectrum">ElectromagneticSpectrum</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="spectral.blackbody.RayleighFilter">
+<em class="property">class </em><code class="descclassname">spectral.blackbody.</code><code class="descname">RayleighFilter</code><a class="reference internal" href="_modules/spectral/blackbody.html#RayleighFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.blackbody.RayleighFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spectral.filter.SpectrumFilter" title="spectral.filter.SpectrumFilter"><code class="xref py py-class docutils literal"><span class="pre">spectral.filter.SpectrumFilter</span></code></a></p>
+<p>This class provides a Rayleigh scattering filter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>spectrum</strong> (<a class="reference internal" href="#spectral.blackbody.ElectromagneticSpectrum" title="spectral.blackbody.ElectromagneticSpectrum"><em>ElectromagneticSpectrum</em></a>) &#8211; spectrum to be filtered</li>
+<li><strong>mat_abundances</strong> (<em>tuple, list of (Material, float)</em>) &#8211; <p>normalized list of material relative abundances
+in given medium (atmosphere, ocean, etc.).
+Abundances should be provided as a list of pairs:
+(Material, relative_molecule_abundance). Note, that
+often some sources give mass abundances: in this
+case you should manually convert them using known
+molar weights.
+Material instance or class should probide given
+attributes and methods:</p>
+<blockquote>
+<div><blockquote>
+<div><ul>
+<li>refractive_index(wavelength, temperature)
+usually ~1.0 for gases at normal conditions</li>
+<li>v - molecule volume in cubic meters</li>
+</ul>
+</div></blockquote>
+<p>See <a class="reference internal" href="#module-spectral.mock_material" title="spectral.mock_material"><code class="xref py py-mod docutils literal"><span class="pre">spectral.mock_material</span></code></a> for more info.</p>
+</div></blockquote>
+</li>
+<li><strong>molecules</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; absolute number of molecules on a light&#8217;s path</li>
+<li><strong>temperature</strong> &#8211; should be &gt; 1K. It&#8217;s probably better to take an
+average temperature of the dense atmosphere layer or
+to create different filters for different atmospheric
+layers.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">filtered spectrum</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#spectral.blackbody.ElectromagneticSpectrum" title="spectral.blackbody.ElectromagneticSpectrum">ElectromagneticSpectrum</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spectral.color_tools">
+<span id="spectral-color-tools-module"></span><h2>spectral.color_tools module<a class="headerlink" href="#module-spectral.color_tools" title="Permalink to this headline">¶</a></h2>
+<p>This code uses can be used to convert wavelengths to RGB.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Based on Dan Bruton&#8217;s code:
+<a class="reference external" href="http://www.physics.sfasu.edu/astro/color/spectra.html">http://www.physics.sfasu.edu/astro/color/spectra.html</a></p>
+</div>
+<dl class="class">
+<dt id="spectral.color_tools.ColorGenerator">
+<em class="property">class </em><code class="descclassname">spectral.color_tools.</code><code class="descname">ColorGenerator</code><a class="reference internal" href="_modules/spectral/color_tools.html#ColorGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.color_tools.ColorGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Color generator class provides different functions for cosmic source
+color estimation.</p>
+<dl class="staticmethod">
+<dt id="spectral.color_tools.ColorGenerator.spectrum_to_rgb">
+<em class="property">static </em><code class="descname">spectrum_to_rgb</code><span class="sig-paren">(</span><em>spectrum</em>, <em>gamma=0.8</em>, <em>float_values=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spectral/color_tools.html#ColorGenerator.spectrum_to_rgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.color_tools.ColorGenerator.spectrum_to_rgb" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function receives an ElectromagneticSpectrum object and returns
+color as RGB tuple. It uses <a class="reference internal" href="#spectral.color_tools.ColorGenerator.wavelength_to_rgb" title="spectral.color_tools.ColorGenerator.wavelength_to_rgb"><code class="xref py py-func docutils literal"><span class="pre">ColorGenerator.wavelength_to_rgb()</span></code></a>
+for a sample of spectrum points and returns an average value. This is
+more precise method than just determining a color using Wien&#8217;s law.</p>
+<p>If the whole spectrum lies beyond visual range (380-750nm) then
+it will return zeros.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>spectrum</strong> (<a class="reference internal" href="#spectral.blackbody.ElectromagneticSpectrum" title="spectral.blackbody.ElectromagneticSpectrum"><em>ElectromagneticSpectrum</em></a>) &#8211; electromagnetic spectrum of a source</li>
+<li><strong>gamma</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; (default=0.8) adjustable coefficient</li>
+<li><strong>float_values</strong> &#8211; if True, then float 0..1 values will be returned</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">color in RGB scale, example: [100, 200, 255]</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#list" title="(in Python v2.7)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="spectral.color_tools.ColorGenerator.wavelength_to_rgb">
+<em class="property">static </em><code class="descname">wavelength_to_rgb</code><span class="sig-paren">(</span><em>wavelength</em>, <em>gamma=0.8</em>, <em>float_values=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spectral/color_tools.html#ColorGenerator.wavelength_to_rgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.color_tools.ColorGenerator.wavelength_to_rgb" title="Permalink to this definition">¶</a></dt>
+<dd><p>This fuction converts a given peak wavelength to an approximate RGB
+color value. The wavelength should be from 380 nm through 750 nm
+otherwise it will return zeros (i.e. black color).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>wavelength</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; wavelength of incoming photons in m</li>
+<li><strong>gamma</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; (default=0.8) adjustable coefficient</li>
+<li><strong>float_values</strong> &#8211; if True, then float 0..1 values will be returned</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">color in RGB scale, example: [100, 200, 255]</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#list" title="(in Python v2.7)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-spectral.constructor">
+<span id="spectral-constructor-module"></span><h2>spectral.constructor module<a class="headerlink" href="#module-spectral.constructor" title="Permalink to this headline">¶</a></h2>
+<p>This module provides an abstract class for spectrum constructors.</p>
+<p>Each spectrum should be constructed through a specific spectrum constructor,
+which would provide valid data.</p>
+<dl class="class">
+<dt id="spectral.constructor.SpectrumConstructor">
+<em class="property">class </em><code class="descclassname">spectral.constructor.</code><code class="descname">SpectrumConstructor</code><a class="reference internal" href="_modules/spectral/constructor.html#SpectrumConstructor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.constructor.SpectrumConstructor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Abstract base class for spectrum constructors.</p>
+<p>It is a constructor class, i.e. instantiation of this class returns new
+Spectrum instance.</p>
+<p><code class="xref py py-func docutils literal"><span class="pre">SpectrumConstructor._func()</span></code> actually is only method to be redefined.</p>
+<p><cite>SpectrumConstructor.progressive_scale</cite> boolean parameter controls if x
+axis has progressive linear scale division or not.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">specific spectrum</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#spectral.spectrum.Spectrum" title="spectral.spectrum.Spectrum">Spectrum</a></td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="spectral.constructor.SpectrumConstructor.progressive_scale">
+<code class="descname">progressive_scale</code><em class="property"> = False</em><a class="headerlink" href="#spectral.constructor.SpectrumConstructor.progressive_scale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="spectral.constructor.SpectrumConstructor.set_precision">
+<em class="property">classmethod </em><code class="descname">set_precision</code><span class="sig-paren">(</span><em>precision</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spectral/constructor.html#SpectrumConstructor.set_precision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.constructor.SpectrumConstructor.set_precision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set spectrum precision, i.e. number of bands (points) in spectrum.</p>
+<p>Precision should be &gt; 2. Common value is 100.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Do not use it too often because spectra with different
+sets of points are going to be not compatible or would
+take significant amount of resources for resampling.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>precision</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of points (bands) in a resulting spectrum</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>ValueError</strong> &#8211; if precision is not in range 2..1000.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="spectral.constructor.SpectrumConstructor.set_spectral_range">
+<em class="property">classmethod </em><code class="descname">set_spectral_range</code><span class="sig-paren">(</span><em>band1</em>, <em>band2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spectral/constructor.html#SpectrumConstructor.set_spectral_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.constructor.SpectrumConstructor.set_spectral_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set new range of generating spectra.</p>
+<p>It is better to use positive values. Negative values support is not
+guaranteed.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Do not use it too often because spectra with different
+sets of points are going to be not compatible or would
+take significant amount of resources for resampling.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>band1</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; minimal value</li>
+<li><strong>band2</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; maximum value</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> &#8211; if band1 &gt;= band2</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-spectral.filter">
+<span id="spectral-filter-module"></span><h2>spectral.filter module<a class="headerlink" href="#module-spectral.filter" title="Permalink to this headline">¶</a></h2>
+<p>Provides abstract base class
+<a class="reference internal" href="#spectral.filter.SpectrumFilter" title="spectral.filter.SpectrumFilter"><code class="xref py py-class docutils literal"><span class="pre">spectral.filter.SpectrumFilter</span></code></a> for spectral data manipulations.</p>
+<dl class="class">
+<dt id="spectral.filter.SpectrumFilter">
+<em class="property">class </em><code class="descclassname">spectral.filter.</code><code class="descname">SpectrumFilter</code><a class="reference internal" href="_modules/spectral/filter.html#SpectrumFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.filter.SpectrumFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Abstract class for implementing different types of spectral filters.</p>
+<p>It is a constructor class, i.e. instantiation of this class returns new
+Spectrum instance with modified data.</p>
+<p>If filter_spectrum is provided, then at first it will resample filter
+spectrum to match the processing spectrum. Then it will send spectrum
+data points to a multiprocessing pool to be modified by
+<code class="xref py py-func docutils literal"><span class="pre">SpectrumFilter._func()</span></code> with related filter points as first argument
+and rest of args as the second argument. Then args will be umpacked the
+way programmer defined it in the function. Returned data will be combined
+into a new spectrum and send back as a return value.</p>
+<p>See _func docstring for more info.</p>
+<p><code class="xref py py-func docutils literal"><span class="pre">SpectrumFilter._func()</span></code> actually is the only method to be redefined in
+derived classes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>spectrum</strong> (<a class="reference internal" href="#spectral.spectrum.Spectrum" title="spectral.spectrum.Spectrum"><em>Spectrum</em></a>) &#8211; spectrum to be processed</li>
+<li><strong>filter_spectrum</strong> (<em>Spectrum, None</em>) &#8211; filter spectrum (default: None)</li>
+<li><strong>args</strong> &#8211; any additional values and constants</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">new processed spectrum</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#spectral.spectrum.Spectrum" title="spectral.spectrum.Spectrum">Spectrum</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spectral.interpolation">
+<span id="spectral-interpolation-module"></span><h2>spectral.interpolation module<a class="headerlink" href="#module-spectral.interpolation" title="Permalink to this headline">¶</a></h2>
+<p>This module provides interpolation some basic algorithms.</p>
+<p>Available methods are: line, none and point. Line is the linear interpolation,
+point is the point sampling, none means that no interpolation at all will be
+performed and the first value greater than x will be returned.</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="go">&gt;&gt;&gt;from spectral.interpolation import Interpolation</span>
+<span class="go">&gt;&gt;&gt;Interpolation.available_methods</span>
+<span class="go">(&#39;line&#39;, &#39;none&#39;, &#39;point&#39;)</span>
+<span class="go">&gt;&gt;&gt;data = [(0, 53.2), (4.1, 24.3), (5.2, -41), (51, 8.0)]</span>
+<span class="go">&gt;&gt;&gt;x = 3.1</span>
+<span class="go">&gt;&gt;&gt;Interpolation.interpolate(data, x, method=&#39;line&#39;)</span>
+<span class="go">31.348780487804877</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="spectral.interpolation.Interpolation">
+<em class="property">class </em><code class="descclassname">spectral.interpolation.</code><code class="descname">Interpolation</code><a class="reference internal" href="_modules/spectral/interpolation.html#Interpolation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.interpolation.Interpolation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Class containing some basic interpolation methods.</p>
+<p>Should not be instantiated.</p>
+<p>To use this call <a class="reference internal" href="#spectral.interpolation.Interpolation.interpolate" title="spectral.interpolation.Interpolation.interpolate"><code class="xref py py-func docutils literal"><span class="pre">Interpolation.interpolate()</span></code></a> method with arguments.</p>
+<p>To register new interpolation method <code class="xref py py-func docutils literal"><span class="pre">_interpolation_function()</span></code>
+module scope decorator is used. The decorator insures, that the method will
+be listed in <cite>Interpolation.methods</cite> dict and in module <cite>_methods</cite> dict.</p>
+<dl class="attribute">
+<dt id="spectral.interpolation.Interpolation.available_methods">
+<code class="descname">available_methods</code><em class="property"> = ('line', 'none', 'point')</em><a class="headerlink" href="#spectral.interpolation.Interpolation.available_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="spectral.interpolation.Interpolation.interpolate">
+<em class="property">classmethod </em><code class="descname">interpolate</code><span class="sig-paren">(</span><em>values</em>, <em>x</em>, <em>method='none'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spectral/interpolation.html#Interpolation.interpolate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.interpolation.Interpolation.interpolate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a function value for a given point, interpolating between
+given data set (spectrum) points.</p>
+<p>Though you can use interpolation methods directly by calling them
+it is better to use method name as a parameter in this function
+because this provides checks on method availability and etc.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">List of given points should be sorted from smaller to
+greater <em>x</em> numbers.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Interpolation adds startpoint and endpoint to data provided
+with (-Inf, data[0][1]) and (Inf, data[-1][1]) otherwise
+off-range values calculation would cause errors.
+It doesn&#8217;t modify the data source.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>values</strong> (<em>list, tuple of (numeric, numeric)</em>) &#8211; list of (x, y) pairs</li>
+<li><strong>x</strong> (<em>float, int</em>) &#8211; point where a function need to be calculated</li>
+<li><strong>method</strong> &#8211; default is &#8216;none&#8217;, interpolation method</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">y value for given x, if None is returned, than the problem is
+likely to be in provided data.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float, int, None</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> &#8211; if interpolation method is not registered</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>in the class.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="spectral.interpolation.Interpolation.line">
+<em class="property">static </em><code class="descname">line</code><span class="sig-paren">(</span><em>values</em>, <em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spectral/interpolation.html#Interpolation.line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.interpolation.Interpolation.line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linear interpolation.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="spectral.interpolation.Interpolation.none">
+<em class="property">static </em><code class="descname">none</code><span class="sig-paren">(</span><em>values</em>, <em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spectral/interpolation.html#Interpolation.none"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.interpolation.Interpolation.none" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic interpolation method (no interpolation).</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="spectral.interpolation.Interpolation.point">
+<em class="property">static </em><code class="descname">point</code><span class="sig-paren">(</span><em>values</em>, <em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spectral/interpolation.html#Interpolation.point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.interpolation.Interpolation.point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Point sampling.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-spectral.spectrum">
+<span id="spectral-spectrum-module"></span><h2>spectral.spectrum module<a class="headerlink" href="#module-spectral.spectrum" title="Permalink to this headline">¶</a></h2>
+<p>This module provides a base Spectrum class which could be used to store
+and process different types of spectral band data.</p>
+<dl class="class">
+<dt id="spectral.spectrum.Spectrum">
+<em class="property">class </em><code class="descclassname">spectral.spectrum.</code><code class="descname">Spectrum</code><span class="sig-paren">(</span><em>lines</em>, <em>interpolation='point'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spectral/spectrum.html#Spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.spectrum.Spectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>This is a class-container for common spectral date.</p>
+<p>The class stores list of bands. It is recommended to construct the
+instances only through <a class="reference internal" href="#spectral.constructor.SpectrumConstructor" title="spectral.constructor.SpectrumConstructor"><code class="xref py py-class docutils literal"><span class="pre">spectral.constructor.SpectrumConstructor</span></code></a>
+classes, which is able to validate lines. It is also recommended not to
+modify lines data directly but only with
+<a class="reference internal" href="#spectral.filter.SpectrumFilter" title="spectral.filter.SpectrumFilter"><code class="xref py py-class docutils literal"><span class="pre">spectral.filter.SpectrumFilter</span></code></a> classes.</p>
+<p>Spectrum class provides basic arithmetic operations between its instances,
+such as: sum, multiplication and subtraction, but these operations only
+provided for spectra with matching x values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>lines</strong> (<em>list of (value, intensity) pairs.</em>) &#8211; list of (value, intensity) pairs. Actual spectral data is
+stored here, you may use it directly, but it&#8217;s not recommended. Lines
+will be sorted in order of first value in pairs when instance is
+constructed.</li>
+<li><strong>interpolation</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; default is &#8216;point&#8217;, determines interpolation type to
+be used with <a class="reference internal" href="#spectral.interpolation.Interpolation" title="spectral.interpolation.Interpolation"><code class="xref py py-class docutils literal"><span class="pre">spectral.interpolation.Interpolation</span></code></a> methods.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="spectral.spectrum.Spectrum.get_value">
+<code class="descname">get_value</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spectral/spectrum.html#Spectrum.get_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.spectrum.Spectrum.get_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns value for a given x coordinate. It uses interpolation
+algorithm. Uses <code class="xref py py-class docutils literal"><span class="pre">interpolation.Interpolation</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> (<em>int, float</em>) &#8211; coordinate</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">point with</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="spectral.spectrum.Spectrum.integrate">
+<code class="descname">integrate</code><span class="sig-paren">(</span><em>x0=None</em>, <em>x1=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spectral/spectrum.html#Spectrum.integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.spectrum.Spectrum.integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integrates a spectrum in a specified range.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x0</strong> (<em>float, None</em>) &#8211; bottom border</li>
+<li><strong>x1</strong> (<em>float, None</em>) &#8211; top border</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">if x0 or/and x1 not specified or None, then minimum value of
+the spectrum will be taken for x0 and/or maximum value will
+taken for x1.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">sum inside given range</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">float, int</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><strong>ValueError</strong> &#8211; if x0 &gt; x1</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="spectral.spectrum.Spectrum.intensities">
+<code class="descname">intensities</code><a class="headerlink" href="#spectral.spectrum.Spectrum.intensities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a generator containing all intensities presented in lines.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">y values</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">generator of float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="spectral.spectrum.Spectrum.maximum">
+<code class="descname">maximum</code><a class="headerlink" href="#spectral.spectrum.Spectrum.maximum" title="Permalink to this definition">¶</a></dt>
+<dd><p>This property returns maximum value of the spectrum.</p>
+<p>This property doesn&#8217;t use interpolation and returns point in a spectrum
+with max value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">band, containing max value</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(float, float)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="spectral.spectrum.Spectrum.resample">
+<code class="descname">resample</code><span class="sig-paren">(</span><em>owner</em>, <em>other</em>, <em>*args</em>, <em>**kws</em><span class="sig-paren">)</span><a class="headerlink" href="#spectral.spectrum.Spectrum.resample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="spectral.spectrum.Spectrum.x_values">
+<code class="descname">x_values</code><a class="headerlink" href="#spectral.spectrum.Spectrum.x_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a generator containing all x values of spectrum lines.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">x values</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">generator of float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-spectral.mock_material">
+<span id="spectral-mock-material-module"></span><h2>spectral.mock_material module<a class="headerlink" href="#module-spectral.mock_material" title="Permalink to this headline">¶</a></h2>
+<p>Mock material class to provide a general structure of material type needed
+for electromagnetic filters.</p>
+<dl class="class">
+<dt id="spectral.mock_material.MockMaterial">
+<em class="property">class </em><code class="descclassname">spectral.mock_material.</code><code class="descname">MockMaterial</code><a class="reference internal" href="_modules/spectral/mock_material.html#MockMaterial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.mock_material.MockMaterial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Mock material class provides an interface for material classes
+construction to be compatible with electromagnetic filters of the package.</p>
+<p>It is also used in unit tests.</p>
+<dl class="method">
+<dt id="spectral.mock_material.MockMaterial.photoeffect_cross_section">
+<code class="descname">photoeffect_cross_section</code><span class="sig-paren">(</span><em>wavelength</em>, <em>temperature</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spectral/mock_material.html#MockMaterial.photoeffect_cross_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.mock_material.MockMaterial.photoeffect_cross_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Photoelectric effect cross-section in square meters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>wavelength</strong> &#8211; light wavelength in m</li>
+<li><strong>temperature</strong> &#8211; medium temperature in kelvins</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">differential cross-section</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="spectral.mock_material.MockMaterial.refractive_index">
+<code class="descname">refractive_index</code><span class="sig-paren">(</span><em>wavelength</em>, <em>temperature</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spectral/mock_material.html#MockMaterial.refractive_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spectral.mock_material.MockMaterial.refractive_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refractive index of the material.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>wavelength</strong> &#8211; light wavelength in m</li>
+<li><strong>temperature</strong> &#8211; medium temperature in kelvins</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">differential cross-section</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="spectral.mock_material.MockMaterial.v">
+<code class="descname">v</code><a class="headerlink" href="#spectral.mock_material.MockMaterial.v" title="Permalink to this definition">¶</a></dt>
+<dd><p>Molecule volume in cubic meters.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">spectral package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#module-spectral">Module contents</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-spectral.blackbody">spectral.blackbody module</a></li>
+<li><a class="reference internal" href="#module-spectral.color_tools">spectral.color_tools module</a></li>
+<li><a class="reference internal" href="#module-spectral.constructor">spectral.constructor module</a></li>
+<li><a class="reference internal" href="#module-spectral.filter">spectral.filter module</a></li>
+<li><a class="reference internal" href="#module-spectral.interpolation">spectral.interpolation module</a></li>
+<li><a class="reference internal" href="#module-spectral.spectrum">spectral.spectrum module</a></li>
+<li><a class="reference internal" href="#module-spectral.mock_material">spectral.mock_material module</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">spectral</a><ul>
+      <li>Previous: <a href="modules.html" title="previous chapter">spectral</a></li>
+      <li>Next: <a href="spectral.tests.html" title="next chapter">spectral.tests package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/spectral.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Violet Red.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/spectral.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

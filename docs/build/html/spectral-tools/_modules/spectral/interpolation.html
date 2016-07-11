@@ -1,0 +1,250 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>spectral.interpolation &mdash; spectral-tools 1.0a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="spectral-tools 1.0a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for spectral.interpolation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This module provides interpolation some basic algorithms.</span>
+
+<span class="sd">Available methods are: line, none and point. Line is the linear interpolation,</span>
+<span class="sd">point is the point sampling, none means that no interpolation at all will be</span>
+<span class="sd">performed and the first value greater than x will be returned.</span>
+
+<span class="sd">**Example**:</span>
+<span class="sd">::</span>
+
+<span class="sd">    &gt;&gt;&gt;from spectral.interpolation import Interpolation</span>
+<span class="sd">    &gt;&gt;&gt;Interpolation.available_methods</span>
+<span class="sd">    (&#39;line&#39;, &#39;none&#39;, &#39;point&#39;)</span>
+<span class="sd">    &gt;&gt;&gt;data = [(0, 53.2), (4.1, 24.3), (5.2, -41), (51, 8.0)]</span>
+<span class="sd">    &gt;&gt;&gt;x = 3.1</span>
+<span class="sd">    &gt;&gt;&gt;Interpolation.interpolate(data, x, method=&#39;line&#39;)</span>
+<span class="sd">    31.348780487804877</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">functools</span>
+
+<span class="kn">from</span> <span class="nn">tools.classproperty</span> <span class="kn">import</span> <span class="n">classproperty</span>
+
+<span class="n">_methods</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_register_interpolation_function</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Decorates :class:`Interpolation` methods which should be registered</span>
+<span class="sd">    as interpolation algorithms.&quot;&quot;&quot;</span>
+    <span class="n">_methods</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">__name__</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span>
+
+    <span class="nd">@functools.wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">__func__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+
+<div class="viewcode-block" id="Interpolation"><a class="viewcode-back" href="../../spectral.html#spectral.interpolation.Interpolation">[docs]</a><span class="k">class</span> <span class="nc">Interpolation</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Class containing some basic interpolation methods.</span>
+
+<span class="sd">    Should not be instantiated.</span>
+
+<span class="sd">    To use this call :func:`Interpolation.interpolate` method with arguments.</span>
+
+<span class="sd">    To register new interpolation method :func:`_interpolation_function`</span>
+<span class="sd">    module scope decorator is used. The decorator insures, that the method will</span>
+<span class="sd">    be listed in `Interpolation.methods` dict and in module `_methods` dict.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: add cubic and cos algorithms</span>
+    <span class="n">_methods</span> <span class="o">=</span> <span class="n">_methods</span>
+
+    <span class="nd">@classproperty</span>
+    <span class="k">def</span> <span class="nf">available_methods</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Lists names of all registered methods of interpolation.</span>
+
+<span class="sd">        :return: tuple of interpolation method names</span>
+<span class="sd">        :rtype: tuple of str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_methods</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Interpolation.interpolate"><a class="viewcode-back" href="../../spectral.html#spectral.interpolation.Interpolation.interpolate">[docs]</a>    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a function value for a given point, interpolating between</span>
+<span class="sd">        given data set (spectrum) points.</span>
+
+<span class="sd">        Though you can use interpolation methods directly by calling them</span>
+<span class="sd">        it is better to use method name as a parameter in this function</span>
+<span class="sd">        because this provides checks on method availability and etc.</span>
+
+<span class="sd">        .. warning:: List of given points should be sorted from smaller to</span>
+<span class="sd">                     greater *x* numbers.</span>
+
+<span class="sd">        .. note:: Interpolation adds startpoint and endpoint to data provided</span>
+<span class="sd">                  with (-Inf, data[0][1]) and (Inf, data[-1][1]) otherwise</span>
+<span class="sd">                  off-range values calculation would cause errors.</span>
+<span class="sd">                  It doesn&#39;t modify the data source.</span>
+
+<span class="sd">        :param values: list of (x, y) pairs</span>
+<span class="sd">        :type values: list, tuple of (numeric, numeric)</span>
+<span class="sd">        :param x: point where a function need to be calculated</span>
+<span class="sd">        :type x: float, int</span>
+<span class="sd">        :param method: default is &#39;none&#39;, interpolation method</span>
+<span class="sd">        :type method: str</span>
+
+<span class="sd">            *Values:*</span>
+<span class="sd">                    - line - A classic line interpolation. Approximates points</span>
+<span class="sd">                    with a linear function. Doesn&#39;t provide smoothness.</span>
+<span class="sd">                    - point - This method returns *y* value of the point in</span>
+<span class="sd">                    data, where *x* coordinate is closer to a given *x*.</span>
+<span class="sd">                    - none - This method just returns the first data list pair</span>
+<span class="sd">                    y value, where x is greater than a provided *x* parameter.</span>
+<span class="sd">                    Thus this method is somehow similar to the `point`, except</span>
+<span class="sd">                    that it doesn&#39;t determine which point of the data is closer</span>
+<span class="sd">                    to a provided *x*.</span>
+
+<span class="sd">        :return: y value for given x, if None is returned, than the problem is</span>
+<span class="sd">            likely to be in provided data.</span>
+<span class="sd">        :rtype: float, int, None</span>
+
+<span class="sd">        :raises ValueError: if interpolation method is not registered</span>
+<span class="sd">        in the class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">_methods</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> interpolation method not available.&quot;</span>
+                <span class="s2">&quot;Should be one of these: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">available_methods</span><span class="p">)))</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_add_endpoints</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">_methods</span><span class="p">[</span><span class="n">method</span><span class="p">](</span><span class="n">values</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_add_endpoints</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Private method which adds -Inf and Inf points to a provided dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;-Inf&#39;</span><span class="p">),</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="o">*</span><span class="n">values</span><span class="p">,</span>
+                <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;Inf&#39;</span><span class="p">),</span> <span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])]</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="nd">@_register_interpolation_function</span>
+<div class="viewcode-block" id="Interpolation.none"><a class="viewcode-back" href="../../spectral.html#spectral.interpolation.Interpolation.none">[docs]</a>    <span class="k">def</span> <span class="nf">none</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Basic interpolation method (no interpolation).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">y1</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">x1</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">break</span>
+        <span class="k">return</span> <span class="n">y1</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="nd">@_register_interpolation_function</span>
+<div class="viewcode-block" id="Interpolation.point"><a class="viewcode-back" href="../../spectral.html#spectral.interpolation.Interpolation.point">[docs]</a>    <span class="k">def</span> <span class="nf">point</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Point sampling.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">x1</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">x0</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">y1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">y0</span>
+            <span class="k">return</span> <span class="n">y</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="nd">@_register_interpolation_function</span>
+<div class="viewcode-block" id="Interpolation.line"><a class="viewcode-back" href="../../spectral.html#spectral.interpolation.Interpolation.line">[docs]</a>    <span class="k">def</span> <span class="nf">line</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Linear interpolation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">x1</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">y0</span> <span class="o">==</span> <span class="n">y1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">y0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">y0</span> <span class="o">+</span> <span class="p">(</span><span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">y</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Violet Red.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

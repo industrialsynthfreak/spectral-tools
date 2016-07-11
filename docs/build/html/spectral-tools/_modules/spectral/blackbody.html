@@ -1,0 +1,468 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>spectral.blackbody &mdash; spectral-tools 1.0a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="spectral-tools 1.0a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for spectral.blackbody</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This module provides classes for electromagnetic spectrum manipulations.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">from</span> <span class="nn">.spectrum</span> <span class="kn">import</span> <span class="n">Spectrum</span>
+<span class="kn">from</span> <span class="nn">.filter</span> <span class="kn">import</span> <span class="n">SpectrumFilter</span>
+<span class="kn">from</span> <span class="nn">.constructor</span> <span class="kn">import</span> <span class="n">SpectrumConstructor</span>
+
+<span class="n">WIEN_C</span> <span class="o">=</span> <span class="mf">2.8977729</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**-</span><span class="mi">3</span>  <span class="c1"># wien&#39;s displacement law constant in m * K</span>
+<span class="n">H</span> <span class="o">=</span> <span class="mf">6.63</span> <span class="o">*</span> <span class="mf">10.</span><span class="o">**-</span><span class="mf">34.</span>  <span class="c1"># J/s planck</span>
+<span class="n">C</span> <span class="o">=</span> <span class="mf">299792458.</span>  <span class="c1"># m/s light speed</span>
+<span class="n">C2</span> <span class="o">=</span> <span class="n">C</span> <span class="o">*</span> <span class="n">C</span>  <span class="c1"># m2/s2 speed of light squared</span>
+<span class="n">K</span> <span class="o">=</span> <span class="mf">1.38</span> <span class="o">*</span> <span class="mf">10.</span><span class="o">**-</span><span class="mf">23.</span>  <span class="c1"># J/K boltzmann</span>
+
+
+<div class="viewcode-block" id="ElectromagneticSpectrum"><a class="viewcode-back" href="../../spectral.html#spectral.blackbody.ElectromagneticSpectrum">[docs]</a><span class="k">class</span> <span class="nc">ElectromagneticSpectrum</span><span class="p">(</span><span class="n">Spectrum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The main reason for this type is to provide type matching between</span>
+<span class="sd">    electromagnetic spectra and forbid arithmetic operations between different</span>
+<span class="sd">    types of spectra.</span>
+
+<span class="sd">    .. py:attribute:: bands</span>
+
+<span class="sd">    Data set on bands of electromagnetic spectra. Includes all ranges from</span>
+<span class="sd">    gamma-rays to radio-waves.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_nm</span> <span class="o">=</span> <span class="mf">10.</span> <span class="o">**</span> <span class="o">-</span><span class="mf">9.</span>
+    <span class="n">_mm</span> <span class="o">=</span> <span class="mf">10.</span> <span class="o">**</span> <span class="o">-</span><span class="mf">3.</span>
+    <span class="n">_km</span> <span class="o">=</span> <span class="mf">10.</span> <span class="o">**</span> <span class="mf">3.</span>
+    <span class="n">_pm</span> <span class="o">=</span> <span class="mf">10.</span> <span class="o">**</span> <span class="o">-</span><span class="mf">12.</span>
+    <span class="n">bands</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;GAMMA&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">),</span>
+        <span class="s1">&#39;HX&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.01</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">,</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">),</span>
+        <span class="s1">&#39;SX&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.1</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">,</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">),</span>
+        <span class="s1">&#39;EUV&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">,</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">),</span>
+        <span class="s1">&#39;FUV&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">,</span> <span class="mi">200</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">),</span>
+        <span class="s1">&#39;MUV&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">200</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">,</span> <span class="mi">300</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">),</span>
+        <span class="s1">&#39;NUV&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">300</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">,</span> <span class="mi">380</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">),</span>
+        <span class="s1">&#39;VIS&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">380</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">,</span> <span class="mi">750</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">),</span>
+        <span class="s1">&#39;NIR&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">750</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">,</span> <span class="mi">1400</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">),</span>
+        <span class="s1">&#39;SIR&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1400</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">,</span> <span class="mi">3000</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">),</span>
+        <span class="s1">&#39;MIR&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">3000</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">,</span> <span class="mi">8000</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">),</span>
+        <span class="s1">&#39;LIR&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">8000</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">,</span> <span class="mi">15000</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">),</span>
+        <span class="s1">&#39;FIR&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">15000</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">,</span> <span class="mi">100000</span> <span class="o">*</span> <span class="n">_nm</span><span class="p">),</span>
+        <span class="s1">&#39;THF&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.1</span> <span class="o">*</span> <span class="n">_mm</span><span class="p">,</span> <span class="mf">1.</span> <span class="o">*</span> <span class="n">_mm</span><span class="p">),</span>
+        <span class="s1">&#39;EHF&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">*</span> <span class="n">_mm</span><span class="p">,</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">_mm</span><span class="p">),</span>
+        <span class="s1">&#39;SHF&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">_mm</span><span class="p">,</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">_mm</span><span class="p">),</span>
+        <span class="s1">&#39;UHF&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">_mm</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="s1">&#39;VHF&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+        <span class="s1">&#39;HF&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+        <span class="s1">&#39;MF&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">_km</span><span class="p">),</span>
+        <span class="s1">&#39;LF&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="n">_km</span><span class="p">,</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">_km</span><span class="p">),</span>
+        <span class="s1">&#39;VLF&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">_km</span><span class="p">,</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">_km</span><span class="p">),</span>
+        <span class="s1">&#39;ULF&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">_km</span><span class="p">,</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">_km</span><span class="p">),</span>
+        <span class="s1">&#39;SLF&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="n">_km</span><span class="p">,</span> <span class="mi">10000</span> <span class="o">*</span> <span class="n">_km</span><span class="p">),</span>
+        <span class="s1">&#39;ELF&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">10000</span> <span class="o">*</span> <span class="n">_km</span><span class="p">,</span> <span class="mi">100000</span> <span class="o">*</span> <span class="n">_km</span><span class="p">)</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="ElectromagneticSpectrum.get_intensity_in_band"><a class="viewcode-back" href="../../spectral.html#spectral.blackbody.ElectromagneticSpectrum.get_intensity_in_band">[docs]</a>    <span class="k">def</span> <span class="nf">get_intensity_in_band</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">band_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns intensity for a given band range.</span>
+
+<span class="sd">        :param band_name: spectral band identifier, see</span>
+<span class="sd">            :func:`ElectromagneticSpectrum.bands`</span>
+<span class="sd">        :type band_name: str</span>
+
+<span class="sd">        :return: absolute value of flux density on a surface for a given band</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span><span class="n">band_name</span><span class="p">])</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">relative_visual_intensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns intensity in a visual range compared to overall intensity.</span>
+
+<span class="sd">        :return: relative visual intensity value 0..1</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_intensity_in_band</span><span class="p">(</span><span class="s1">&#39;VIS&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrate</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ElectromagneticSpectrumConstructor"><a class="viewcode-back" href="../../spectral.html#spectral.blackbody.ElectromagneticSpectrumConstructor">[docs]</a><span class="k">class</span> <span class="nc">ElectromagneticSpectrumConstructor</span><span class="p">(</span><span class="n">SpectrumConstructor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An abstract class for electromagnetic spectrum constructors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ElectromagneticSpectrumConstructor.set_spectral_range_by_bands"><a class="viewcode-back" href="../../spectral.html#spectral.blackbody.ElectromagneticSpectrumConstructor.set_spectral_range_by_bands">[docs]</a>    <span class="k">def</span> <span class="nf">set_spectral_range_by_bands</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">band1</span><span class="p">,</span> <span class="n">band2</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets spectral range of the constructor. All constructed spectra will</span>
+<span class="sd">        have this spectral range.</span>
+
+<span class="sd">        You may provide band names listed in</span>
+<span class="sd">        :py:attr:`spectral.blackbody.ElectromagneticSpectrum.bands` to define</span>
+<span class="sd">        the spectral range. Note, that some derived constructor classes may</span>
+<span class="sd">        override this value or even ignore it.</span>
+
+<span class="sd">        :param band1: minimal value</span>
+<span class="sd">        :type band1: str</span>
+<span class="sd">        :param band2: maximum value, if None, then the full range of band1 will</span>
+<span class="sd">            be taken</span>
+<span class="sd">        :type band2: str, None</span>
+
+<span class="sd">        :raises ValueError: if any band is not present in</span>
+<span class="sd">            :py:mod:`constants.constants` or when band1 wavelength &gt;</span>
+<span class="sd">            band2 wavelength</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">band1</span> <span class="o">=</span> <span class="n">ElectromagneticSpectrum</span><span class="o">.</span><span class="n">bands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">band1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">band2</span><span class="p">:</span>
+            <span class="n">band2</span> <span class="o">=</span> <span class="n">ElectromagneticSpectrum</span><span class="o">.</span><span class="n">bands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">band2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">band1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">band2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Wrong EM band name. Valid band names are: </span><span class="si">%s</span><span class="s2">.&quot;</span>
+                    <span class="o">%</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ElectromagneticSpectrum</span><span class="o">.</span><span class="n">bands</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">band2</span><span class="p">:</span>
+            <span class="n">b1</span><span class="p">,</span> <span class="n">b2</span> <span class="o">=</span> <span class="n">band1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">b1</span><span class="p">,</span> <span class="n">b2</span> <span class="o">=</span> <span class="n">band1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">band2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">b1</span> <span class="o">&gt;=</span> <span class="n">b2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Wrong spectral range, because </span><span class="si">%s</span><span class="s2"> &quot;</span>
+                <span class="s2">&quot;has higher wavelengths than </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">band1</span><span class="p">,</span> <span class="n">band2</span><span class="p">))</span>
+        <span class="n">cls</span><span class="o">.</span><span class="n">_spectrum_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="BlackbodySpectrumConstructor"><a class="viewcode-back" href="../../spectral.html#spectral.blackbody.BlackbodySpectrumConstructor">[docs]</a><span class="k">class</span> <span class="nc">BlackbodySpectrumConstructor</span><span class="p">(</span><span class="n">ElectromagneticSpectrumConstructor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This class provides simple black body spectrum construction.</span>
+
+<span class="sd">    The constructor accepts temperature value, because black body spectrum</span>
+<span class="sd">    depends only on its temperature (google Planck distribution).</span>
+
+<span class="sd">    It can be used for good approximations of normal star radiation spectra</span>
+<span class="sd">    (see figures).</span>
+
+<span class="sd">    Spectral boundaries will be defined automatically. You may modify the</span>
+<span class="sd">    range manually by setting all checks mentioned above to *False* and by</span>
+<span class="sd">    :py:meth:`.constructor.SpectrumConstructor.set_spectral_range` or</span>
+<span class="sd">    :py:meth:`ElectromagneticSpectrumConstructor.set_spectral_range_by_bands`</span>
+<span class="sd">    but it&#39;s not recommended.</span>
+
+<span class="sd">    The class uses progressive scale</span>
+<span class="sd">    (see :py:attribute:`.constructor.SpectrumConstructor.progressive_scale`)</span>
+<span class="sd">    with tick size</span>
+<span class="sd">    related to wavelength. At lower wavelengths ticks will be more frequent.</span>
+<span class="sd">    Set better precision with</span>
+<span class="sd">    :py:meth:`.constructor.SpectrumConstructor.set_precision`</span>
+<span class="sd">    method if you are concerned about it. Default precision is 200 points.</span>
+
+<span class="sd">    The constructor will try to define maximum of the spectrum using</span>
+<span class="sd">    Wien&#39;s law (again, google it) and locate 99.9% of the total flux inside</span>
+<span class="sd">    constructed data. :py:attribute:`spectrum_gate` contains boundary values</span>
+<span class="sd">    relative to a spectral maximum wavelength.</span>
+
+<span class="sd">    If :py:attr:`ignore_visual` is not set (as by default), then the</span>
+<span class="sd">    constructor tries to predict when visual range is needed by comparing</span>
+<span class="sd">    provided temperature with :py:attr:`visual_t_gate` boundaries.</span>
+<span class="sd">    By default, these values are set to represent the range from a transition</span>
+<span class="sd">    between L and T brown dwarfs to a hot Wolf-Rayet star surface temperature.</span>
+<span class="sd">    Typical objects, exceeding this limit may be neutron stars or ultra-cold</span>
+<span class="sd">    brown dwarfs and rogue planets. There is no need to include them, because</span>
+<span class="sd">    their visible luminosity would be negligible.</span>
+<span class="sd">    If the constructor proceeds, it looks at :py:attr:`visible_range`.</span>
+<span class="sd">    By default, they also include Near-IR and Near-UV bands.</span>
+
+<span class="sd">    .. figure:: ../img/spectral/EffectiveTemperature_300dpi_e.png</span>
+<span class="sd">                :target: ../img/spectral/EffectiveTemperature_300dpi_e.png</span>
+<span class="sd">                :align: center</span>
+<span class="sd">                :width: 10em</span>
+
+<span class="sd">        Actual solar extraterrestrial spectrum vs black body spectrum.</span>
+
+<span class="sd">    .. figure:: ../img/spectral/spectra-compared.gif</span>
+<span class="sd">                :target: ../img/spectral/spectra-compared.gif</span>
+<span class="sd">                :align: center</span>
+<span class="sd">                :width: 10em</span>
+
+<span class="sd">        Example of how stellar spectrum changes with temperature.</span>
+
+<span class="sd">    :param temperature: black body surface temperature in kelvins</span>
+<span class="sd">    :type temperature: float</span>
+
+<span class="sd">    :return: electromagnetic spectrum of a black body with given temperature</span>
+<span class="sd">    :rtype: ElectromagneticSpectrum</span>
+
+<span class="sd">    :raises ValueError: if provided temperature &lt;= 1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_spectrum_type</span> <span class="o">=</span> <span class="n">ElectromagneticSpectrum</span>
+    <span class="n">progressive_scale</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">spectrum_gate</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.156</span><span class="p">,</span> <span class="mf">7.8</span><span class="p">)</span>
+    <span class="n">ignore_visual</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">visual_t_gate</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1199.</span><span class="p">,</span> <span class="mf">250000.</span><span class="p">)</span>
+    <span class="n">visible_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">ElectromagneticSpectrum</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span><span class="s1">&#39;NUV&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                      <span class="n">ElectromagneticSpectrum</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span><span class="s1">&#39;NIR&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">_spectrum_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">ElectromagneticSpectrum</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span><span class="s1">&#39;EUV&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                       <span class="n">ElectromagneticSpectrum</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span><span class="s1">&#39;NIR&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">_precision</span> <span class="o">=</span> <span class="mi">200</span>
+
+    <span class="n">_k0</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">H</span> <span class="o">*</span> <span class="n">C2</span>
+    <span class="n">_k1</span> <span class="o">=</span> <span class="n">H</span> <span class="o">*</span> <span class="n">C</span> <span class="o">/</span> <span class="n">K</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_func</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Private spectrum construction function.</span>
+
+<span class="sd">        Constructs intensity for given wavelength and temperature using</span>
+<span class="sd">        Planck distribution.</span>
+
+<span class="sd">        :param wavelength: specific wavelength (must be &gt;= 10**-10 m)</span>
+<span class="sd">            .. note:: the function has overflow protection, but it would break</span>
+<span class="sd">                      the distribution in an overflow ranges</span>
+<span class="sd">        :type wavelength: float</span>
+<span class="sd">        :param temperature: temperature of a radiating surface</span>
+<span class="sd">        :type temperature: float</span>
+
+<span class="sd">        :return: intensity value</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_k1</span> <span class="o">/</span> <span class="n">temperature</span> <span class="o">/</span> <span class="n">wavelength</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">700</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">flux</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_k0</span> <span class="o">/</span> <span class="p">(</span><span class="n">wavelength</span><span class="o">**</span><span class="mf">5.</span> <span class="o">*</span> <span class="n">exp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">flux</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_define_spectral_range</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Defines spectral range, where 99% of spectrum will be located.</span>
+<span class="sd">        From 0.01% left to 99% right by wavelength.</span>
+
+<span class="sd">        This function uses Wien&#39;s law for maximum amplitude wavelength and then</span>
+<span class="sd">        simply takes 0.312 * lmax left and 7.8 * lmax right borders</span>
+<span class="sd">        (0.312 and 7.8 coefficients are stored in `_spectrum_gate` class</span>
+<span class="sd">        attribute).</span>
+
+<span class="sd">        Next if `_ignore_visual` is enabled, it will check if temperature lies</span>
+<span class="sd">        within `_visual_t_gate`. If yes, then it will determine whether vis</span>
+<span class="sd">        range is included inside boders and shift them if needed.</span>
+
+<span class="sd">        :param temperature: temperature in K</span>
+<span class="sd">        :type temperature: float</span>
+<span class="sd">        :returns: border range in m</span>
+<span class="sd">        :rtype: tuple of float, float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">wien_max</span> <span class="o">=</span> <span class="n">WIEN_C</span> <span class="o">/</span> <span class="n">temperature</span>
+        <span class="n">k0</span><span class="p">,</span> <span class="n">k1</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">spectrum_gate</span>
+        <span class="n">w0</span><span class="p">,</span> <span class="n">w1</span> <span class="o">=</span> <span class="n">wien_max</span> <span class="o">*</span> <span class="n">k0</span><span class="p">,</span> <span class="n">wien_max</span> <span class="o">*</span> <span class="n">k1</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cls</span><span class="o">.</span><span class="n">ignore_visual</span><span class="p">:</span>
+            <span class="n">t0</span><span class="p">,</span> <span class="n">t1</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">visual_t_gate</span>
+            <span class="k">if</span> <span class="n">t0</span> <span class="o">&lt;</span> <span class="n">temperature</span> <span class="o">&lt;</span> <span class="n">t1</span><span class="p">:</span>
+                <span class="n">vis0</span><span class="p">,</span> <span class="n">vis1</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">visible_range</span>
+                <span class="k">if</span> <span class="n">w0</span> <span class="o">&gt;</span> <span class="n">vis0</span><span class="p">:</span>
+                    <span class="n">w0</span> <span class="o">=</span> <span class="n">vis0</span>
+                <span class="k">if</span> <span class="n">w1</span> <span class="o">&lt;</span> <span class="n">vis1</span><span class="p">:</span>
+                    <span class="n">w1</span> <span class="o">=</span> <span class="n">vis1</span>
+        <span class="k">return</span> <span class="n">w0</span><span class="p">,</span> <span class="n">w1</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">temperature</span> <span class="o">&lt;=</span> <span class="mf">1.</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Temperature must be positive. Got </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">temperature</span><span class="p">)</span>
+        <span class="n">cls</span><span class="o">.</span><span class="n">set_spectral_range</span><span class="p">(</span><span class="o">*</span><span class="n">cls</span><span class="o">.</span><span class="n">_define_spectral_range</span><span class="p">(</span><span class="n">temperature</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RayleighFilter"><a class="viewcode-back" href="../../spectral.html#spectral.blackbody.RayleighFilter">[docs]</a><span class="k">class</span> <span class="nc">RayleighFilter</span><span class="p">(</span><span class="n">SpectrumFilter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This class provides a Rayleigh scattering filter.</span>
+
+<span class="sd">    :param spectrum: spectrum to be filtered</span>
+<span class="sd">    :type spectrum: ElectromagneticSpectrum</span>
+<span class="sd">    :param mat_abundances: normalized list of material relative abundances</span>
+<span class="sd">                           in given medium (atmosphere, ocean, etc.).</span>
+<span class="sd">                           Abundances should be provided as a list of pairs:</span>
+<span class="sd">                           (Material, relative_molecule_abundance). Note, that</span>
+<span class="sd">                           often some sources give mass abundances: in this</span>
+<span class="sd">                           case you should manually convert them using known</span>
+<span class="sd">                           molar weights.</span>
+<span class="sd">                           Material instance or class should probide given</span>
+<span class="sd">                           attributes and methods:</span>
+<span class="sd">                                - refractive_index(wavelength, temperature)</span>
+<span class="sd">                                  usually ~1.0 for gases at normal conditions</span>
+<span class="sd">                                - v - molecule volume in cubic meters</span>
+<span class="sd">                            See :py:mod:`spectral.mock_material` for more info.</span>
+<span class="sd">    :type mat_abundances: tuple, list of (Material, float)</span>
+<span class="sd">    :param molecules: absolute number of molecules on a light&#39;s path</span>
+<span class="sd">    :type molecules: int</span>
+<span class="sd">    :param temperature: should be &gt; 1K. It&#39;s probably better to take an</span>
+<span class="sd">                        average temperature of the dense atmosphere layer or</span>
+<span class="sd">                        to create different filters for different atmospheric</span>
+<span class="sd">                        layers.</span>
+
+<span class="sd">    :return: filtered spectrum</span>
+<span class="sd">    :rtype: ElectromagneticSpectrum</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: Too low impact on intensity.</span>
+    <span class="n">_k</span> <span class="o">=</span> <span class="mf">200000.</span> <span class="o">*</span> <span class="mf">24.</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mf">3.</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_func</span><span class="p">(</span><span class="n">spectrum_x_y</span><span class="p">,</span> <span class="n">filter_x_y</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Private function calculating rayleigh scattering effect for a given</span>
+<span class="sd">        (wave, intensity) point.</span>
+
+<span class="sd">        Rayleigh scattering uses common formula</span>
+<span class="sd">        (see http://plaza.ufl.edu/dwhahn/</span>
+<span class="sd">            Rayleigh%20and%20Mie%20Light%20Scattering.pdf</span>
+<span class="sd">        for example):</span>
+
+<span class="sd">        I = I0 * sigma / r**2, where</span>
+<span class="sd">        sigma = 24 * Pi**3 * ((n**2 - 1) / (n**2 + 2))**2 / lambda**4 * N**2</span>
+<span class="sd">        N - molecules/m3 i.e. concentration of molecules</span>
+<span class="sd">        because r * N gives us a number of molecules in an atmosphere column</span>
+<span class="sd">        it can be rewritten as I = I0 * sigma_mod / dN**2</span>
+<span class="sd">        where dN is a number of molecules in an atmosphere column (which should</span>
+<span class="sd">        be provided as argument).</span>
+<span class="sd">        Scattering is meant to be isotropic and non-polarized (for simplicity).</span>
+<span class="sd">        It is assumed, that half of the radiation escapes to the space.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="n">spectrum_x_y</span>
+        <span class="n">mat_abundances</span><span class="p">,</span> <span class="n">molecules</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="n">w4</span> <span class="o">=</span> <span class="n">w</span><span class="o">**</span><span class="mf">4.</span>
+        <span class="n">sigma_total</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">mat</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">mat_abundances</span><span class="p">:</span>
+            <span class="n">n2</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">refractive_index</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+            <span class="n">mod</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">v</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">RayleighFilter</span><span class="o">.</span><span class="n">_k</span> <span class="o">*</span> <span class="p">((</span><span class="n">n2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">n2</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">w4</span>
+            <span class="n">sigma_total</span> <span class="o">+=</span> <span class="n">mod</span> <span class="o">*</span> <span class="n">c</span>
+        <span class="k">return</span> <span class="n">y0</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">sigma_total</span> <span class="o">*</span> <span class="n">molecules</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="n">mat_abundances</span><span class="p">,</span> <span class="n">molecules</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span>
+            <span class="n">cls</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">mat_abundances</span><span class="p">,</span> <span class="n">molecules</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PhotoAbsoprtion"><a class="viewcode-back" href="../../spectral.html#spectral.blackbody.PhotoAbsoprtion">[docs]</a><span class="k">class</span> <span class="nc">PhotoAbsoprtion</span><span class="p">(</span><span class="n">SpectrumFilter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This class provides photoelectric absorption filters.</span>
+<span class="sd">    It may be useful for atmospheric filtering in case of really hard spectra</span>
+<span class="sd">    of blue stars where significant amounts of x-ray radiation are present.</span>
+<span class="sd">    Probably most of the rays with lambda &gt; 10nm won&#39;t pierce through any</span>
+<span class="sd">    common atmosphere at all.</span>
+
+<span class="sd">    .. note:: Photoelectric absorption slightly depends on temperature, so</span>
+<span class="sd">              a minimal required energy (i.e. maximum wavelength) will be</span>
+<span class="sd">              shifted in a hot medium.</span>
+
+<span class="sd">    :param spectrum: spectrum to be filtered</span>
+<span class="sd">    :type spectrum: ElectromagneticSpectrum</span>
+<span class="sd">    :param mat_abundances: normalized list of material relative abundances</span>
+<span class="sd">                           in given medium (atmosphere, ocean, etc.).</span>
+<span class="sd">                           Abundances should be provided as a list of pairs:</span>
+<span class="sd">                           (Material, relative_molecule_abundance). Note, that</span>
+<span class="sd">                           often some sources give mass abundances: in this</span>
+<span class="sd">                           case you should manually convert them using known</span>
+<span class="sd">                           molar weights.</span>
+<span class="sd">                           Material instance or class should probide given</span>
+<span class="sd">                           attributes and methods:</span>
+<span class="sd">                                - photoeffect_cross_section(wavelength,</span>
+<span class="sd">                                temperature) in m3, usually &lt; 10**-30</span>
+<span class="sd">                            See :py:mod:`spectral.mock_material` for more info.</span>
+<span class="sd">    :type mat_abundances: tuple, list of (Material, float)</span>
+<span class="sd">    :param molecules: absolute number of molecules on a light&#39;s path</span>
+<span class="sd">    :type molecules: int</span>
+<span class="sd">    :param temperature: should be &gt; 1K. It&#39;s probably better to take an</span>
+<span class="sd">                        average temperature of the dense atmosphere layer or</span>
+<span class="sd">                        to create different filters for different atmospheric</span>
+<span class="sd">                        layers.</span>
+
+<span class="sd">    :return: filtered spectrum</span>
+<span class="sd">    :rtype: ElectromagneticSpectrum</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_func</span><span class="p">(</span><span class="n">spectrum_x_y</span><span class="p">,</span> <span class="n">filter_x_y</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Private function calculating resulting beam intensity after the</span>
+<span class="sd">        photoelectric absorption process.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="n">spectrum_x_y</span>
+        <span class="n">mat_abundances</span><span class="p">,</span> <span class="n">molecules</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">mat</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">mat_abundances</span><span class="p">:</span>
+            <span class="n">sigma</span> <span class="o">+=</span> <span class="n">c</span> <span class="o">*</span> <span class="n">mat</span><span class="o">.</span><span class="n">photoeffect_cross_section</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">y0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">molecules</span> <span class="o">*</span> <span class="n">sigma</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="n">mat_abundances</span><span class="p">,</span> <span class="n">molecules</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span>
+            <span class="n">cls</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">mat_abundances</span><span class="p">,</span> <span class="n">molecules</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Violet Red.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

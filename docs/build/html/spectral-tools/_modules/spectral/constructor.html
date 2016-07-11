@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>spectral.constructor &mdash; spectral-tools 1.0a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="spectral-tools 1.0a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for spectral.constructor</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This module provides an abstract class for spectrum constructors.</span>
+
+<span class="sd">Each spectrum should be constructed through a specific spectrum constructor,</span>
+<span class="sd">which would provide valid data.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">tools.classproperty</span> <span class="kn">import</span> <span class="n">classproperty</span>
+<span class="kn">from</span> <span class="nn">.spectrum</span> <span class="kn">import</span> <span class="n">Spectrum</span>
+
+
+<div class="viewcode-block" id="SpectrumConstructor"><a class="viewcode-back" href="../../spectral.html#spectral.constructor.SpectrumConstructor">[docs]</a><span class="k">class</span> <span class="nc">SpectrumConstructor</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Abstract base class for spectrum constructors.</span>
+
+<span class="sd">    It is a constructor class, i.e. instantiation of this class returns new</span>
+<span class="sd">    Spectrum instance.</span>
+
+<span class="sd">    :func:`SpectrumConstructor._func` actually is only method to be redefined.</span>
+
+<span class="sd">    `SpectrumConstructor.progressive_scale` boolean parameter controls if x</span>
+<span class="sd">    axis has progressive linear scale division or not.</span>
+
+<span class="sd">    :return: specific spectrum</span>
+<span class="sd">    :rtype: Spectrum</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_spectrum_range</span> <span class="o">=</span> <span class="p">(</span><span class="mf">100.</span> <span class="o">*</span> <span class="mf">10.</span> <span class="o">**</span> <span class="o">-</span><span class="mf">9.</span><span class="p">,</span> <span class="mf">1400.</span> <span class="o">*</span> <span class="mf">10.</span> <span class="o">**</span> <span class="o">-</span><span class="mf">9.</span><span class="p">)</span>
+    <span class="n">_precision</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">_spectrum_type</span> <span class="o">=</span> <span class="n">Spectrum</span>
+    <span class="n">progressive_scale</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_func</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Private method to be redefined in actual class.</span>
+
+<span class="sd">        .. warning:: This method is expected to be redefined in actual classes.</span>
+
+<span class="sd">        :returns: intensity (amplitude) value for a specific conditions.</span>
+<span class="sd">            Usually it should be x coordinate (wavelength) and some parameter.</span>
+<span class="sd">        :rtype: float</span>
+
+<span class="sd">        :raises NotImplementedError: if you try to access to it in an abstract</span>
+<span class="sd">            base class :class:`spectral.spectrum.SpectrumConstructor`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;Trying to call abstract class function.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SpectrumConstructor.set_precision"><a class="viewcode-back" href="../../spectral.html#spectral.constructor.SpectrumConstructor.set_precision">[docs]</a>    <span class="k">def</span> <span class="nf">set_precision</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">precision</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set spectrum precision, i.e. number of bands (points) in spectrum.</span>
+
+<span class="sd">        Precision should be &gt; 2. Common value is 100.</span>
+
+<span class="sd">        .. warning:: Do not use it too often because spectra with different</span>
+<span class="sd">                     sets of points are going to be not compatible or would</span>
+<span class="sd">                     take significant amount of resources for resampling.</span>
+
+<span class="sd">        :param precision: number of points (bands) in a resulting spectrum</span>
+<span class="sd">        :type precision: int</span>
+
+<span class="sd">        :raises ValueError: if precision is not in range 2..1000.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">precision</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Precision must be in range 1 - 1000, but got </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">precision</span><span class="p">)</span>
+        <span class="n">cls</span><span class="o">.</span><span class="n">_precision</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">precision</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SpectrumConstructor.set_spectral_range"><a class="viewcode-back" href="../../spectral.html#spectral.constructor.SpectrumConstructor.set_spectral_range">[docs]</a>    <span class="k">def</span> <span class="nf">set_spectral_range</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">band1</span><span class="p">,</span> <span class="n">band2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set new range of generating spectra.</span>
+
+<span class="sd">        It is better to use positive values. Negative values support is not</span>
+<span class="sd">        guaranteed.</span>
+
+<span class="sd">        .. warning:: Do not use it too often because spectra with different</span>
+<span class="sd">                     sets of points are going to be not compatible or would</span>
+<span class="sd">                     take significant amount of resources for resampling.</span>
+
+<span class="sd">        :param band1: minimal value</span>
+<span class="sd">        :type band1: float</span>
+<span class="sd">        :param band2: maximum value</span>
+<span class="sd">        :type band2: float</span>
+
+<span class="sd">        :raises ValueError: if band1 &gt;= band2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">band1</span> <span class="o">&gt;=</span> <span class="n">band2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Wrong spectral range, because </span><span class="si">%f</span><span class="s2"> &quot;</span>
+                <span class="s2">&quot;has higher wavelengths than </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">band1</span><span class="p">,</span> <span class="n">band2</span><span class="p">))</span>
+        <span class="n">cls</span><span class="o">.</span><span class="n">_spectrum_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">band1</span><span class="p">,</span> <span class="n">band2</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_return_spectrum</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Private method which generates intensity values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">v</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="nd">@classproperty</span>
+    <span class="k">def</span> <span class="nf">_wavelist</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Private class property returning list of bands (wavelengths)</span>
+<span class="sd">        i.e. x axis values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">_create_progressive_division</span><span class="p">():</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">dw</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">((</span><span class="nb">range</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_precision</span><span class="p">)))</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">w_min</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_precision</span><span class="p">):</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="n">k</span> <span class="o">*</span> <span class="n">i</span>
+                <span class="k">yield</span> <span class="n">s</span>
+
+        <span class="n">w_min</span><span class="p">,</span> <span class="n">w_max</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_spectrum_range</span>
+        <span class="n">dw</span> <span class="o">=</span> <span class="n">w_max</span> <span class="o">-</span> <span class="n">w_min</span>
+        <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">progressive_scale</span><span class="p">:</span>
+            <span class="n">waves</span> <span class="o">=</span> <span class="n">_create_progressive_division</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="n">dw</span> <span class="o">/</span> <span class="n">cls</span><span class="o">.</span><span class="n">_precision</span>
+            <span class="n">waves</span> <span class="o">=</span> <span class="p">(</span><span class="n">w_min</span> <span class="o">+</span> <span class="n">step</span> <span class="o">*</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_precision</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">waves</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructs and returns :class:`Spectrum` instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_return_spectrum</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_wavelist</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">_spectrum_type</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Violet Red.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>spectral.filter &mdash; spectral-tools 1.0a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="spectral-tools 1.0a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for spectral.filter</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Provides abstract base class</span>
+<span class="sd">:class:`spectral.filter.SpectrumFilter` for spectral data manipulations.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">repeat</span>
+<span class="kn">from</span> <span class="nn">multiprocessing.pool</span> <span class="kn">import</span> <span class="n">Pool</span>
+
+<span class="kn">from</span> <span class="nn">spectral.spectrum</span> <span class="kn">import</span> <span class="n">Spectrum</span>
+
+
+<div class="viewcode-block" id="SpectrumFilter"><a class="viewcode-back" href="../../spectral.html#spectral.filter.SpectrumFilter">[docs]</a><span class="k">class</span> <span class="nc">SpectrumFilter</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Abstract class for implementing different types of spectral filters.</span>
+
+<span class="sd">    It is a constructor class, i.e. instantiation of this class returns new</span>
+<span class="sd">    Spectrum instance with modified data.</span>
+
+<span class="sd">    If filter_spectrum is provided, then at first it will resample filter</span>
+<span class="sd">    spectrum to match the processing spectrum. Then it will send spectrum</span>
+<span class="sd">    data points to a multiprocessing pool to be modified by</span>
+<span class="sd">    :func:`SpectrumFilter._func` with related filter points as first argument</span>
+<span class="sd">    and rest of args as the second argument. Then args will be umpacked the</span>
+<span class="sd">    way programmer defined it in the function. Returned data will be combined</span>
+<span class="sd">    into a new spectrum and send back as a return value.</span>
+
+<span class="sd">    See _func docstring for more info.</span>
+
+<span class="sd">    :func:`SpectrumFilter._func` actually is the only method to be redefined in</span>
+<span class="sd">    derived classes.</span>
+
+<span class="sd">    :param spectrum: spectrum to be processed</span>
+<span class="sd">    :type spectrum: Spectrum</span>
+<span class="sd">    :param filter_spectrum: filter spectrum (default: None)</span>
+<span class="sd">    :type filter_spectrum: Spectrum, None</span>
+<span class="sd">    :param args: any additional values and constants</span>
+
+<span class="sd">    :return: new processed spectrum</span>
+<span class="sd">    :rtype: Spectrum</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_func</span><span class="p">(</span><span class="n">spectrum_x_y</span><span class="p">,</span> <span class="n">filter_x_y</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Private method to be redefined in actual class.</span>
+
+<span class="sd">        .. warning:: This method is expected to be redefined in actual classes.</span>
+
+<span class="sd">        ..note:: Please use the same function parameters as here, otherwise</span>
+<span class="sd">                 you need to redefine :meth:`SpectrumFilter._process` and</span>
+<span class="sd">                 __new__ methods.</span>
+
+<span class="sd">        :param spectrum_x_y: a point from an initial spectrum</span>
+<span class="sd">        :type spectrum_x_y: list, tuple of (numeric, numeric)</span>
+<span class="sd">        :param filter_x_y: a point from a resampled filter spectrum</span>
+<span class="sd">        :type filter_x_y: list, tuple of (numeric, numeric)</span>
+<span class="sd">        :param args: list of additional parameters (coefficients and constants)</span>
+<span class="sd">        :type args: list, tuple</span>
+
+<span class="sd">        :return: intensity (amplitude) value for a specific conditions.</span>
+<span class="sd">            Usually it should be x coordinate (wavelength) and some parameter.</span>
+<span class="sd">        :rtype: float</span>
+
+<span class="sd">        :raises NotImplementedError: if you try to access to it in an abstract</span>
+<span class="sd">            base class :class:`SpectrumConstructor`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;Trying to call abstract class function.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="n">filter_spectrum</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This private class method process spectrum with a given filter</span>
+<span class="sd">        and parameters.</span>
+
+<span class="sd">        .. note:: If no filter spectrum is provided, then it passes None as</span>
+<span class="sd">                  filter spectrum point to all processes.</span>
+
+<span class="sd">        This method uses multiprocessing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">filter_spectrum</span><span class="p">:</span>
+            <span class="n">resampled_filter_spectrum</span> <span class="o">=</span> <span class="n">filter_spectrum</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">spectrum</span><span class="p">)</span>
+            <span class="n">resampled_filter_lines</span> <span class="o">=</span> <span class="n">resampled_filter_spectrum</span><span class="o">.</span><span class="n">lines</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">resampled_filter_lines</span> <span class="o">=</span> <span class="n">repeat</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">spectrum</span><span class="o">.</span><span class="n">lines</span><span class="p">))</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">spectrum</span><span class="o">.</span><span class="n">lines</span><span class="p">,</span> <span class="n">resampled_filter_lines</span><span class="p">,</span> <span class="n">repeat</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">()</span>
+        <span class="n">y_values</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_func</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">spectrum</span><span class="o">.</span><span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">spectrum</span><span class="p">)(</span><span class="n">lines</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="n">spectrum</span><span class="o">.</span><span class="n">interpolation</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="n">filter_spectrum</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">spectrum</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">filter_spectrum</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">spectrum</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Violet Red.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
