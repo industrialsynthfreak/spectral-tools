@@ -68,6 +68,7 @@ class Spectrum:
 
         :raises ValueError: if x0 > x1
         """
+        # 1.01 to compensate gate effect
         return sum((i for w, i in self._yield_integrated_bins(x0, x1)))
 
     @property
@@ -147,9 +148,9 @@ class Spectrum:
             if w < x0:
                 continue
             w0, i0 = self.lines[n]
-            dw = abs(w - w0)
+            dw = w - w0
             w_avg = w0 + dw * 0.5
-            i1 = self.get_value(w_avg)
+            i1 = self.get_value(w_avg) * dw
             if w >= x1:
                 break
             yield (w_avg, i1)

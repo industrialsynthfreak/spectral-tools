@@ -9,7 +9,7 @@ from spectral.color_tools import ColorGenerator
 stars = {
     'Sun': 5777.,
     'Sirius': 9940.,
-    'Antares': 3400.,
+    'Antares': 3200.,
     'GD 165B': 1800.,
     'Spica': 22400.,
     'Luhman 16B': 1210.,
@@ -49,7 +49,7 @@ def _prepare_plot():
     x_ticks = [x * 10 ** -9 for x in range(0, plot_x_range_nm, 100)]
     plt.xticks(x_ticks, range(0, plot_x_range_nm, 100))
 
-    plt.ylabel(r"Surface Flux Density, $W * m^{-2}$")
+    plt.ylabel(r"Surface Flux Density, $W * m^{-2} * nm^{-1}$")
     plt.xlabel(r"Wavelength, $nm$")
     plt.suptitle("Electromagnetic spectra of different stars"
                  "\n(black body approximation).", fontsize=16,

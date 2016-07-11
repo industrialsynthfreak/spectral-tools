@@ -142,7 +142,7 @@ class BlackbodySpectrumConstructor(ElectromagneticSpectrumConstructor):
     related to wavelength. At lower wavelengths ticks will be more frequent.
     Set better precision with
     :py:meth:`.constructor.SpectrumConstructor.set_precision`
-    method if you are concerned about it. Default precision is 200 points.
+    method if you are concerned about it. Default precision is 300 points.
 
     The constructor will try to define maximum of the spectrum using
     Wien's law (again, google it) and locate 99.9% of the total flux inside
@@ -191,7 +191,7 @@ class BlackbodySpectrumConstructor(ElectromagneticSpectrumConstructor):
                       ElectromagneticSpectrum.bands['NIR'][1])
     _spectrum_range = (ElectromagneticSpectrum.bands['EUV'][0],
                        ElectromagneticSpectrum.bands['NIR'][1])
-    _precision = 200
+    _precision = 300
 
     _k0 = 2. * math.pi * H * C2
     _k1 = H * C / K
@@ -214,9 +214,9 @@ class BlackbodySpectrumConstructor(ElectromagneticSpectrumConstructor):
         :rtype: float
         """
         p = cls._k1 / temperature / wavelength
-        p = min(700, p)
-        exp = math.exp(p)
-        flux = cls._k0 / (wavelength**5. * exp)
+        p = min(700., p)
+        exponent = math.exp(p)
+        flux = cls._k0 / wavelength**5. / (exponent - 1.)
         return flux
 
     @classmethod

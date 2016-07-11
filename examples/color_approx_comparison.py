@@ -4,7 +4,7 @@ from spectral.color_tools import ColorGenerator
 stars = {
     'Sun': 5777.,
     'Sirius': 9940.,
-    'Antares': 3400.,
+    'Antares': 3200.,
     'Mintaka': 29500.,
     'OTS44': 1700.,
     'Capella': 4970.,
